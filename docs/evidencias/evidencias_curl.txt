@@ -1,0 +1,43 @@
+### 1. Préstamo de libro disponible (esperado 201)
+$ curl -s -i --noproxy '*' -X POST localhost:8080/api/prestamos -H "Content-Type: application/json" -d '{"estudianteId":1,"libroId":1}' | grep -v -E '^(Date|Keep-Alive|Connection|Transfer)'
+HTTP/1.1 201 
+Content-Type: application/json
+
+{"id":1,"estudianteId":1,"nombreEstudiante":"Ana Torres","libroId":1,"tituloLibro":"Diseno de Software","fechaPrestamo":"2026-11-12","activo":true}
+
+
+### 2. Libro ya prestado (esperado 409)
+$ curl -s -i --noproxy '*' -X POST localhost:8080/api/prestamos -H "Content-Type: application/json" -d '{"estudianteId":2,"libroId":1}' | grep -v -E '^(Date|Keep-Alive|Connection|Transfer)'
+HTTP/1.1 409 
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 46
+
+El libro 'Diseno de Software' ya esta prestado
+
+
+### 3. Estudiante inexistente (esperado 404)
+$ curl -s -i --noproxy '*' -X POST localhost:8080/api/prestamos -H "Content-Type: application/json" -d '{"estudianteId":99,"libroId":2}' | grep -v -E '^(Date|Keep-Alive|Connection|Transfer)'
+HTTP/1.1 404 
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 33
+
+No existe el estudiante con id 99
+
+
+### 4. Libro inexistente (esperado 404)
+$ curl -s -i --noproxy '*' -X POST localhost:8080/api/prestamos -H "Content-Type: application/json" -d '{"estudianteId":1,"libroId":99}' | grep -v -E '^(Date|Keep-Alive|Connection|Transfer)'
+HTTP/1.1 404 
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 28
+
+No existe el libro con id 99
+
+
+### 5. Consulta de préstamos (esperado 200, solo 1 registro)
+$ curl -s -i --noproxy '*' localhost:8080/api/prestamos | grep -v -E '^(Date|Keep-Alive|Connection|Transfer)'
+HTTP/1.1 200 
+Content-Type: application/json
+
+[{"id":1,"estudianteId":1,"nombreEstudiante":"Ana Torres","libroId":1,"tituloLibro":"Diseno de Software","fechaPrestamo":"2026-11-12","activo":true}]
+
+
